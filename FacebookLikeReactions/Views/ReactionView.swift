@@ -9,8 +9,7 @@
 import UIKit
 
 protocol ReactionViewDelegate {
-    func selected(reaction: Reaction)
-    func deselectAllReactions()
+    func selected(reaction: Reaction, isReactionRemoved: Bool)
 }
 
 class ReactionView: UIView {
@@ -63,7 +62,7 @@ class ReactionView: UIView {
         contentView.autoresizingMask = [UIView.AutoresizingMask.flexibleWidth,UIView.AutoresizingMask.flexibleHeight]
         longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(viewLongPressed(gesture:)))
         self.addGestureRecognizer(longPressGesture!)
-//        initializeIconsContainer()
+        //        initializeIconsContainer()
         
         tapGesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped(gesture:)))
         self.addGestureRecognizer(tapGesture!)
@@ -92,12 +91,12 @@ class ReactionView: UIView {
     }
     
     func select(reaction: Reaction) {
-        delegate?.selected(reaction: reaction)
+        delegate?.selected(reaction: reaction, isReactionRemoved: false)
         self.iconsContainerView.removeFromSuperview()
         
         self.currentReactionLabel.text = reaction.title
         self.currentReactionLabel.textColor = reaction.associated_color
-      
+        
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             self.currentReactionImageView.image = reaction.image
             self.currentReactionImageView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
@@ -115,7 +114,9 @@ class ReactionView: UIView {
         currentReactionImageView.image = unselectedReaction?.image
         currentReactionLabel.text = unselectedReaction?.title
         currentReactionLabel.textColor = unselectedReaction?.associated_color
-        delegate?.deselectAllReactions()
+        if let unselectedReaction = unselectedReaction {
+            delegate?.selected(reaction: unselectedReaction, isReactionRemoved: true)
+        }
     }
     
     private func initializeIconsContainer() {
@@ -186,7 +187,7 @@ class ReactionView: UIView {
             stackView?.distribution = .fillEqually
             iconsContainerView.addSubview(stackView!)
         }
-    
+        
         self.iconsContainerView.transform = CGAffineTransform.identity
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
             self.iconsContainerView.transform = CGAffineTransform(translationX: 0, y: -(self.iconHeight + 2 * self.padding + 10))

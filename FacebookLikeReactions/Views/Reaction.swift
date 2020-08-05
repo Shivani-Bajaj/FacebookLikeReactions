@@ -14,4 +14,5 @@ struct Reaction {
     var image: UIImage?
     var title: String?
     var associated_color: UIColor?
+    var value: Any?
 }
